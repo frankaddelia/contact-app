@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Company;
+use App\Models\Contact;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Faker\Factory as Faker;
 
 class ContactSeeder extends Seeder
@@ -17,32 +17,27 @@ class ContactSeeder extends Seeder
      */
     public function run()
     {
-        $contacts = [];
-        $companyIds = Company::pluck('id');
+        $companies = Company::all();
         $faker = Faker::create();
+        $contacts = [];
 
-        foreach (range(1, rand(10, 100)) as $count) {
-            $includeUpdatedAt = rand(1, 1000) >= 100;
+        foreach ($companies as $company) {
+            foreach(range(1, 5) as $index) {
 
-            $contact = [
-                'company_id' => $companyIds[rand(0, count($companyIds) - 1)],
-                'first_name' => $faker->firstName(),
-                'last_name' => $faker->lastName(),
-                'phone' => $faker->phoneNumber(),
-                'email' => $faker->email(),
-                'address' => $faker->address(),
-                'created_at' => $faker->dateTimeBetween('-10 years', '-1 year'),
-                'updated_at' => $includeUpdatedAt ? $faker->dateTimeBetween('-3 years', '-1 years') : null
-            ];
-
-            // if (!$includeUpdatedAt) {
-            //     $contact['updated_at'] = $faker->dateTime();
-            // }
-
-            $contacts[] = $contact;
+                $contact = [
+                    'first_name' => $faker->firstName(),
+                    'last_name' => $faker->lastName(),
+                    'phone' => $faker->phoneNumber(),
+                    'email' => $faker->email(),
+                    'address' => $faker->address(),
+                    'company_id' => $company->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+                $contacts[] = $contact;
+            }
         }
-
-        DB::table('contacts')->delete();
-        DB::table('contacts')->insert($contacts);
+        
+        Contact::insert($contacts);
     }
 }
